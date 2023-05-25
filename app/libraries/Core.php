@@ -14,7 +14,7 @@ class Core{
         
         $url = $this->getUrl();
 
-        if(file_exists('../app/controllers/' . ucwords($url[0]) . '.php')){
+        if($url != null && file_exists('../app/controllers/' . ucwords($url[0]) . '.php')){
             //If exist, set as controller
             $this->currentController = ucwords($url[0]);
             //Unset 0 index
@@ -27,6 +27,19 @@ class Core{
         //Instance controller class
         $this->currentController = new $this->currentController;
 
+        //Check for secound part of url
+        if(isset($url[1])){
+            if(method_exists($this->currentController, $url[1])){
+                $this->currentMethod = $url[1]; 
+                unset($url[1]);
+            }
+        }
+
+        $this->params = $url ? array_values($url) : [];
+
+        //Call a callback with arrays of params
+        call_user_func_array([$this->currentController,
+        $this->currentMethod,], $this->params);
 
 
     }
